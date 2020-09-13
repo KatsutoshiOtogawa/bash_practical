@@ -13,8 +13,13 @@ cat /dev/urandom | tr -dc a-zA-Z0-9 | fold -w $width | head -n $row > list.txt
 bits=256
 seq 1 $row | xargs -n 1 bash -c "pwmake ${bits} | cut -c 1-${width} >> list.txt"
  
-# ランダムな位置に特定の文字列を含むファイル作成
-
+# ファイルの特定の文字列を変換する
+# 変換前のファイルlist.txt.orgとlist.txt後のファイルlist.txtができる。バックアップがいらないなら-i.orgを-iに変更。
+search=SEARCH
+replace=REPLACE 
+sed -i.org "s/${search}/${replace}/g" list.txt
+## 検索して表示のみの場合
+sed "s/${search}/${replace}/g" list.txt
 
 # list.txtにある文字列を一行ずつ処理。
 cat list.txt | xargs -n 1 -I {}  echo {}
@@ -27,7 +32,7 @@ grep $search list.txt | xargs -n 1 -I {} echo {}
 grep -v $search list.txt | xargs -n 1 -I {} echo {}
 
 # 指定の行のみ処理
-row=3 # 使いたい行に数字を変更
+row=3
 echo `sed -n ${row}p list.txt`
 ```
 
@@ -38,15 +43,16 @@ echo `sed -n ${row}p list.txt`
 # テーブル作成
 sqlite3 list.db << END
 CREATE TABLE your_table (
-  id int autoincrement
+  id integer primary key autoincrement
   ,name text
 );
 END
 
-# INSERT
-echo "insert "
+# ランダム文字列作成
+## sqlite3では難しいので上記にある固定文字列の作成から作成したファイルの文字列を放り込むのが楽。
+cat list.txt | xargs -n 1 -I {} echo "INSERT INTO your_table(name) VALUES('{}');" | sqlite3 list.db
 
-echo "select * from your_table" | sqlite3 list.db | xargs -n 1 -I {}  echo “{}”
+echo "SELECT * FROM your_table" | sqlite3 list.db | xargs -n 1 -I {}  echo “{}”
 ```
 
 ## カレントフォルダに対する処理
@@ -62,3 +68,6 @@ ls -1 | xargs -I {} mv {} $destination
 # 現在のフォルダのファイルを特定のフォルダにコピー(上と同じ要領)
 ls -1 | xargs -I {} cp {} $destination
 ```
+
+# 参考
+[Bashレファレンス](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html)
