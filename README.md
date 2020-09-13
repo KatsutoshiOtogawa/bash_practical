@@ -5,7 +5,7 @@
 ## ファイルに対する処理
 
 ```
-# ランダムな文字列があるファイル作成
+# 固定長の文字列があるファイル作成
 width=12
 row=6
 cat /dev/urandom | tr -dc a-zA-Z0-9 | fold -w $width | head -n $row > list.txt
