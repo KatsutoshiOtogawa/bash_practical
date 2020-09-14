@@ -24,6 +24,12 @@ sed "s/${search}/${replace}/g" list.txt
 # list.txtにある文字列を一行ずつ処理。
 cat list.txt | xargs -n 1 -I {}  echo {}
 
+# ランダムな名前リスト作成
+## pythonのライブラリが必要になる。
+## pip3 install names
+row=30
+seq 1 30 | xargs -n 1 names >> list.txt
+
 # 指定の語句を含む行のみ処理
 search=awesome
 grep $search list.txt | xargs -n 1 -I {} echo {}
@@ -52,7 +58,18 @@ END
 ## sqlite3では難しいので上記にある固定文字列の作成から作成したファイルの文字列を放り込むのが楽。
 cat list.txt | xargs -n 1 -I {} echo "INSERT INTO your_table(name) VALUES('{}');" | sqlite3 list.db
 
+# データベースないのデータをbash上で処理
+## プログラミング言語でも要領は同じだが、
+## 他のシステムとの連携や再起クエリなどで表現できない繰り返し処理が多いならストアド推奨。
+## ストアドが必要な可能性がある時点でsqlite3から他のDBに以降すべき。
 echo "SELECT * FROM your_table" | sqlite3 list.db | xargs -n 1 -I {}  echo “{}”
+### ストアド(sqliteではないので)
+### 例えば、あなたのシステムはユーザー情報(名前、emailaddress,住所,職種,役職)を管理しており、
+### 
+## 参考postgresql
+## select from your_scheme.your_table select from other_scheme.other_table
+
+
 ```
 
 ## カレントフォルダに対する処理
